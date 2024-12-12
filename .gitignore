@@ -56,3 +56,15 @@
 /Tests/obj/Debug/net8.0/Tests.csproj.AssemblyReference.cache
 /Tests/obj/Debug/net8.0/Tests.GeneratedMSBuildEditorConfig.editorconfig
 /Tests/obj/Debug/net8.0/Tests.GlobalUsings.g.cs
+/Tests/obj/project.assets.json
+/Tests/obj/project.nuget.cache
+/Tests/obj/Release/net8.0/.NETCoreApp,Version=v8.0.AssemblyAttributes.cs
+/Tests/obj/Release/net8.0/Tests.AssemblyInfo.cs
+/Tests/obj/Release/net8.0/Tests.AssemblyInfoInputs.cache
+/Tests/obj/Release/net8.0/Tests.assets.cache
+/Tests/obj/Release/net8.0/Tests.csproj.AssemblyReference.cache
+/Tests/obj/Release/net8.0/Tests.GeneratedMSBuildEditorConfig.editorconfig
+/Tests/obj/Release/net8.0/Tests.GlobalUsings.g.cs
+/Tests/obj/Tests.csproj.nuget.dgspec.json
+/Tests/obj/Tests.csproj.nuget.g.props
+/Tests/obj/Tests.csproj.nuget.g.targets
