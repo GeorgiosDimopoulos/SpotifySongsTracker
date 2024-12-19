@@ -68,3 +68,8 @@
 /Tests/obj/Tests.csproj.nuget.dgspec.json
 /Tests/obj/Tests.csproj.nuget.g.props
 /Tests/obj/Tests.csproj.nuget.g.targets
+/bin/Debug/net8.0
+/obj/Debug/net8.0/ref/SpotifySongsTracker.dll
+/obj/Debug/net8.0/refint/SpotifySongsTracker.dll
+/obj/Debug/net8.0/SpotifySongsTracker.csproj.AssemblyReference.cache
+/.vs/ProjectEvaluation

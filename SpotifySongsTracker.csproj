@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="SpotifyAPI.Web" Version="7.2.1" />
+    <PackageReference Include="xunit.extensibility.core" Version="2.9.2" />
   </ItemGroup>
 
 </Project>
