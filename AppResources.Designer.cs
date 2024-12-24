@@ -77,5 +77,23 @@ namespace SpotifySongsTracker {
                 return ResourceManager.GetString("ClientSecret", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 5543.
+        /// </summary>
+        internal static string Port {
+            get {
+                return ResourceManager.GetString("Port", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to http://localhost:5543.
+        /// </summary>
+        internal static string RedirectUri {
+            get {
+                return ResourceManager.GetString("RedirectUri", resourceCulture);
+            }
+        }
     }
 }

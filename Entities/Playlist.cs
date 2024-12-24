@@ -1,4 +1,4 @@
-﻿namespace SpotifySongsTracker.Models;
+﻿namespace SpotifySongsTracker.Entities;
 
 public class Playlist
 {

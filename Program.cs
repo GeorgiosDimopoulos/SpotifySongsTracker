@@ -1,45 +1,17 @@
-﻿using SpotifyAPI.Web;
-using SpotifySongsTracker;
-using SpotifySongsTracker.Models;
+﻿using SpotifySongsTracker.Services;
 
-Console.WriteLine("Hello! Lets see whats new in your spotify account");
-
-var config = SpotifyClientConfig.CreateDefault();
-var request = new ClientCredentialsRequest(AppResources.ClientId, AppResources.ClientSecret);
-var response = await new OAuthClient(config).RequestToken(request);
-
-var spotifyClient = new SpotifyClient(response.AccessToken);
-Console.WriteLine("Connected to Spotify!");
-
-var track = await spotifyClient.Tracks.Get("79QLNktJsGNRz4ijFnDywD");
-Song song = new()
+class Program
 {
-    Name = track.Name,
-    Id = track.Id,
-    AlbumName = track.Album.Name,
-    Duration = track.DurationMs
-};
-
-Console.WriteLine($"Song: {song.Name}, Album: {song.AlbumName}, Duration: {song.Duration}");
-
-var playlitst = await GetSpecificPlaylist();
-
-await GetSpecificPlaylist();
-
-async Task<Playlist> GetSpecificPlaylist()
-{
-    var specificPlaylist = await spotifyClient.Playlists.Get("4agdH8mVuilkTYMWxlU0o5");
-    if (specificPlaylist == null)
+    static async Task Main(string [] args)
     {
-        Console.WriteLine("Playlist not found");
-        return null!;
+        Console.WriteLine("Hello! Let's see something random on Spotify.");
+        SpotifyService spotifyService = new();
+        await spotifyService.GetNonUserData();
+
+        Console.WriteLine("\nNow! Let's see what's new in your Spotify account.");
+        SpotifyAuth spotifyAuth = new();
+        //await spotifyAuth.GetUserData();
+
+        Console.WriteLine("\nProcess completed.");
     }
-
-    return new()
-    {
-        Id = specificPlaylist!.Id ?? "",
-        Name = specificPlaylist!.Name ?? "",
-        Genre = specificPlaylist!.Description ?? "",
-        Songs = new List<Song> { song }
-    };
 }

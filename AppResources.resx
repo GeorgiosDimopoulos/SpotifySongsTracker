@@ -123,4 +123,10 @@
   <data name="ClientSecret" xml:space="preserve">
     <value>1f91bb8030db4e769032b0416c7ca16f</value>
   </data>
+  <data name="RedirectUri" xml:space="preserve">
+    <value>http://localhost:5543</value>
+  </data>
+  <data name="Port" xml:space="preserve">
+    <value>5543</value>
+  </data>
 </root>
