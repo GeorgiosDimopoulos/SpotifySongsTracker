@@ -8,9 +8,9 @@ public class SpotifyService : ISpotifyService
 {
     private readonly SpotifyAuth _spotifyAuth;
 
-    public SpotifyService()
+    public SpotifyService(SpotifyAuth spotifyAuth)
     {
-        _spotifyAuth = new();
+        _spotifyAuth = spotifyAuth;
     }
 
     public async Task GetNonUserData()
@@ -60,8 +60,11 @@ public class SpotifyService : ISpotifyService
             Console.WriteLine($"Song: {s.Name}, Album: {s.AlbumName}, Duration: {s.Duration}");
         }
 
-        //Console.WriteLine("All of my Playlists:");
-        //await ShowAllPlaylists(spotifyClient);
+        Console.WriteLine("All of my Playlists:");
+        await ShowAllPlaylists(spotifyClient);
+
+        Console.WriteLine("Top Tracks:");
+        await ShowTopTrakcs(spotifyClient);
     }
 
     public async Task ShowAllPlaylists(SpotifyClient spotifyClient)
@@ -76,6 +79,15 @@ public class SpotifyService : ISpotifyService
         foreach (var playlist in playlists.Items)
         {
             Console.WriteLine($"Playlist: {playlist.Name}, ID: {playlist.Id}");
+        }
+    }
+
+    public async Task ShowTopTrakcs(SpotifyClient spotifyClient)
+    {
+        var topTracks = await spotifyClient.Personalization.GetTopTracks();
+        foreach (var track in topTracks.Items!)
+        {
+            Console.WriteLine($"Track: {track.Name}, Album: {track.Album.Name}");
         }
     }
 }

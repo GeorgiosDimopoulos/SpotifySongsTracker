@@ -79,6 +79,15 @@ namespace SpotifySongsTracker {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to http://localhost:5543.
+        /// </summary>
+        internal static string oldRedirectUri {
+            get {
+                return ResourceManager.GetString("oldRedirectUri", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to 5543.
         /// </summary>
         internal static string Port {
@@ -88,7 +97,7 @@ namespace SpotifySongsTracker {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to http://localhost:5543.
+        ///   Looks up a localized string similar to http://localhost:5000/callback.
         /// </summary>
         internal static string RedirectUri {
             get {
