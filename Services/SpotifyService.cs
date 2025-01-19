@@ -1,36 +1,14 @@
 ﻿using SpotifyAPI.Web;
 using SpotifySongsTracker.Entities;
-using SpotifySongsTracker.Services.Interfaces;
 
 namespace SpotifySongsTracker.Services;
 
-public class SpotifyService : ISpotifyService
+public class SpotifyService
 {
-    private readonly SpotifyAuth _spotifyAuth;
-
-    public SpotifyService(SpotifyAuth spotifyAuth)
+    public async Task GetNonUserData(SpotifyClient spotifyClient)
     {
-        _spotifyAuth = spotifyAuth;
-    }
-
-    public async Task GetNonUserData()
-    {
-        var config = SpotifyClientConfig.CreateDefault();
-        var clientRequest = new ClientCredentialsRequest(AppResources.ClientId, AppResources.ClientSecret);
-        var clientResponse = await new OAuthClient(config).RequestToken(clientRequest);
-        var spotifyClient = new SpotifyClient(clientResponse.AccessToken);
-        Console.WriteLine("Connected to Spotify!");
-
-        var track = await spotifyClient.Tracks.Get("79QLNktJsGNRz4ijFnDywD");
-        Song song = new()
-        {
-            Name = track.Name,
-            Id = track.Id,
-            AlbumName = track.Album.Name,
-            Duration = track.DurationMs
-        };
-
-        Console.WriteLine($"Song: {song.Name}, Album: {song.AlbumName}, Duration: {song.Duration}");
+        Console.WriteLine("\nFetching details of a public track:");
+        await GetPublicTrack(spotifyClient, "79QLNktJsGNRz4ijFnDywD");
 
         FullPlaylist specificPlaylist = await spotifyClient.Playlists.Get("4agdH8mVuilkTYMWxlU0o5");
         if (specificPlaylist == null)
@@ -59,35 +37,75 @@ public class SpotifyService : ISpotifyService
         {
             Console.WriteLine($"Song: {s.Name}, Album: {s.AlbumName}, Duration: {s.Duration}");
         }
-
-        Console.WriteLine("All of my Playlists:");
-        await ShowAllPlaylists(spotifyClient);
-
-        Console.WriteLine("Top Tracks:");
-        await ShowTopTrakcs(spotifyClient);
     }
 
-    public async Task ShowAllPlaylists(SpotifyClient spotifyClient)
+    public async Task GetPublicTrack(SpotifyClient spotifyClient, string trackId)
     {
-        var playlists = await spotifyClient.Playlists.CurrentUsers();
-        if (playlists.Items == null || !playlists.Items.Any())
+        try
         {
-            Console.WriteLine("No playlists found");
+            var track = await spotifyClient.Tracks.Get(trackId);
+            Console.WriteLine($"Track Name: {track.Name}");
+            Console.WriteLine($"Album: {track.Album.Name}");
+            Console.WriteLine($"Duration: {track.DurationMs / 1000}s");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching track: {ex.Message}");
+        }
+    }
+
+    public async Task ShowUserPlaylists(SpotifyClient spotifyClient)
+    {
+        try
+        {
+            if (spotifyClient?.Playlists == null)
+            {
+                Console.WriteLine("Spotify client or his Playlists not initialized");
+                return;
+            }
+
+            if (spotifyClient.Player == null)
+            {
+                Console.WriteLine("Current user not found");
+                return;
+            }
+
+            var playlists = await spotifyClient.Playlists.CurrentUsers();
+            if (playlists.Items == null || !playlists.Items.Any())
+            {
+                Console.WriteLine("No playlists found");
+                return;
+            }
+
+            Console.WriteLine("All of my Playlists:");
+            foreach (var playlist in playlists.Items)
+            {
+                Console.WriteLine($"Playlist: {playlist.Name}, ID: {playlist.Id}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching playlists: {ex.Message}");
             return;
-        }
-
-        foreach (var playlist in playlists.Items)
-        {
-            Console.WriteLine($"Playlist: {playlist.Name}, ID: {playlist.Id}");
-        }
+        }       
     }
 
-    public async Task ShowTopTrakcs(SpotifyClient spotifyClient)
+    public async Task ShowUserTopTracks(SpotifyClient spotifyClient)
     {
+        Console.WriteLine("\nFetching now user's top tracks...");
+
         var topTracks = await spotifyClient.Personalization.GetTopTracks();
+        if (topTracks.Items == null || topTracks.Items.Count == 0)
+        {
+            Console.WriteLine("No top tracks found.");
+        }
+        
+        Console.WriteLine("My Top tracks:");
         foreach (var track in topTracks.Items!)
         {
             Console.WriteLine($"Track: {track.Name}, Album: {track.Album.Name}");
         }
+
+        return;
     }
 }

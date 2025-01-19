@@ -88,7 +88,7 @@ namespace SpotifySongsTracker {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 5543.
+        ///   Looks up a localized string similar to 5000.
         /// </summary>
         internal static string Port {
             get {
