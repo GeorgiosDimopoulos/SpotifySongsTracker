@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Console;
 using SpotifyAPI.Web;
 using SpotifySongsTracker.Services;
 
@@ -16,7 +17,6 @@ class Program
         var spotifyService = serviceProvider.GetRequiredService<SpotifyService>();
         var spotifyAuth = serviceProvider.GetRequiredService<SpotifyAuth>();
 
-        // get public data
         var spotifyClient = await spotifyAuth.InitializeSpotifyClient();
         
         if (spotifyClient is null)
@@ -25,24 +25,14 @@ class Program
             return;
         }
 
-        await spotifyService.GetNonUserData(spotifyClient);
-
-        // get private user data
         var authenticatedUser = await spotifyAuth.AuthenticateUserAsync();
-        await spotifyService.ShowUserTopTracks(authenticatedUser);
-        await spotifyService.ShowUserPlaylists(authenticatedUser);
+        await spotifyService.ShowUserTopStats(authenticatedUser);
     }
 
     private static void ConfigureServices(IServiceCollection services)
     {
         services.AddSingleton<SpotifyClient>();
         services.AddScoped<SpotifyAuth>();
-        services.AddScoped<SpotifyService>();
-
-        services.AddLogging(config =>
-        {
-            config.AddConsole();
-            config.SetMinimumLevel(LogLevel.Information);
-        });
+        services.AddScoped<SpotifyService>();       
     }
 }
