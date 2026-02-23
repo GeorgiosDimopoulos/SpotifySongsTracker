@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spotify Stats Dashboard</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #121212;
+      color: #e0e0e0;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    header svg { width: 40px; height: 40px; fill: #1db954; }
+
+    h1 { font-size: 1.8rem; color: #1db954; }
+
+    #status {
+      font-size: 0.85rem;
+      color: #888;
+      margin-bottom: 1.5rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .card {
+      background: #1e1e1e;
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      border: 1px solid #2a2a2a;
+    }
+
+    .card h2 {
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: #1db954;
+      margin-bottom: 1rem;
+    }
+
+    .card ol, .card ul {
+      list-style: none;
+      counter-reset: item;
+    }
+
+    .card li {
+      counter-increment: item;
+      display: flex;
+      align-items: baseline;
+      gap: .5rem;
+      padding: .35rem 0;
+      border-bottom: 1px solid #2a2a2a;
+      font-size: .9rem;
+    }
+
+    .card li:last-child { border-bottom: none; }
+
+    .card li::before {
+      content: counter(item) ".";
+      color: #555;
+      min-width: 1.4rem;
+      font-size: .8rem;
+    }
+
+    .badge {
+      margin-left: auto;
+      background: #2a2a2a;
+      color: #888;
+      font-size: .75rem;
+      padding: 2px 7px;
+      border-radius: 20px;
+    }
+
+    .skeleton {
+      background: linear-gradient(90deg, #2a2a2a 25%, #333 50%, #2a2a2a 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+      border-radius: 6px;
+      height: 1.1rem;
+      margin: .4rem 0;
+    }
+
+    @keyframes shimmer { to { background-position: -200% 0; } }
+
+    button {
+      background: #1db954;
+      color: #000;
+      border: none;
+      border-radius: 30px;
+      padding: .6rem 1.6rem;
+      font-size: .9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .2s;
+      margin-bottom: 1.5rem;
+    }
+
+    button:hover { background: #17a349; }
+    button:disabled { background: #555; cursor: not-allowed; }
+
+    .error { color: #e05260; padding: .5rem 0; }
+  </style>
+</head>
+<body>
+  <header>
+    <!-- Spotify-style logo -->
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M12 0C5.372 0 0 5.373 0 12s5.372 12 12 12 12-5.373 12-12S18.628 0 12 0zm5.52 17.325a.747.747 0 01-1.03.25c-2.822-1.724-6.376-2.114-10.563-1.158a.748.748 0 01-.352-1.454c4.581-1.047 8.514-.596 11.695 1.338a.748.748 0 01.25 1.024zm1.473-3.274a.935.935 0 01-1.286.308c-3.23-1.985-8.154-2.56-11.977-1.4a.935.935 0 01-.54-1.79c4.366-1.327 9.795-.683 13.495 1.596a.935.935 0 01.308 1.286zm.126-3.407C15.29 8.464 9.378 8.268 5.85 9.35a1.121 1.121 0 01-.647-2.148C9.396 5.985 15.912 6.21 20.175 8.608a1.122 1.122 0 01-1.056 1.986v.03z"/>
+    </svg>
+    <h1>Spotify Stats Dashboard</h1>
+  </header>
+
+  <p id="status">Not connected. Click "Load My Stats" to begin.</p>
+  <button id="loadBtn" onclick="loadStats()">Load My Stats</button>
+
+  <div class="grid">
+    <div class="card" id="tracksCard">
+      <h2>🎵 Top Tracks (last 6 months)</h2>
+      <ol id="tracksList"><li class="skeleton" style="height:1rem"></li></ol>
+    </div>
+    <div class="card" id="genresCard">
+      <h2>🎸 Top Genres</h2>
+      <ul id="genresList"><li class="skeleton" style="height:1rem"></li></ul>
+    </div>
+    <div class="card" id="playlistsCard">
+      <h2>📋 Top Playlists</h2>
+      <ul id="playlistsList"><li class="skeleton" style="height:1rem"></li></ul>
+    </div>
+  </div>
+
+  <!-- SignalR client library (shipped with Microsoft.AspNetCore.SignalR) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+
+  <script>
+    const connection = new signalR.HubConnectionBuilder()
+      .withUrl("/statsHub")
+      .withAutomaticReconnect()
+      .build();
+
+    const status = document.getElementById("status");
+    const loadBtn = document.getElementById("loadBtn");
+
+    // ── SignalR handlers ──────────────────────────────────────────────────────
+
+    connection.on("ReceiveTopTracks", (tracks) => {
+      const list = document.getElementById("tracksList");
+      list.innerHTML = tracks.length
+        ? tracks.map(t => `<li><span>${escHtml(t.name)}</span><span class="badge">${escHtml(t.album)}</span></li>`).join("")
+        : "<li>No top tracks found.</li>";
+      status.textContent = "Top tracks received — waiting for genres…";
+    });
+
+    connection.on("ReceiveTopGenres", (genres) => {
+      const list = document.getElementById("genresList");
+      list.innerHTML = genres.length
+        ? genres.map(g => `<li><span>${escHtml(g.genre)}</span><span class="badge">${g.count}</span></li>`).join("")
+        : "<li>No genre data found.</li>";
+      status.textContent = "Top genres received — waiting for playlists…";
+    });
+
+    connection.on("ReceiveTopPlaylists", (playlists) => {
+      const list = document.getElementById("playlistsList");
+      list.innerHTML = playlists.length
+        ? playlists.map(p => `<li><span>${escHtml(p.name)}</span><span class="badge">${p.trackCount} tracks</span></li>`).join("")
+        : "<li>No playlists found.</li>";
+      status.textContent = "Top playlists received…";
+    });
+
+    connection.on("StatsComplete", () => {
+      status.textContent = "✅ All stats loaded successfully!";
+      loadBtn.disabled = false;
+    });
+
+    connection.on("StatsError", (message) => {
+      status.innerHTML = `<span class="error">⚠ Error: ${escHtml(message)}</span>`;
+      loadBtn.disabled = false;
+    });
+
+    // ── Actions ───────────────────────────────────────────────────────────────
+
+    async function loadStats() {
+      loadBtn.disabled = true;
+      status.textContent = "Connecting…";
+
+      // Clear previous results with skeletons
+      ["tracksList", "genresList", "playlistsList"].forEach(id => {
+        document.getElementById(id).innerHTML =
+          Array(5).fill('<li class="skeleton"></li>').join("");
+      });
+
+      try {
+        if (connection.state === signalR.HubConnectionState.Disconnected) {
+          await connection.start();
+        }
+        status.textContent = "Connected — fetching your Spotify stats…";
+        await connection.invoke("RequestStats");
+      } catch (err) {
+        status.innerHTML = `<span class="error">⚠ ${escHtml(String(err))}</span>`;
+        loadBtn.disabled = false;
+      }
+    }
+
+    function escHtml(str) {
+      if (!str) return "";
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+  </script>
+</body>
+</html>

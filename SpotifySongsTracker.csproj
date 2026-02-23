@@ -13,6 +13,10 @@
     <Compile Remove="Models\**" />
     <EmbeddedResource Remove="Models\**" />
     <None Remove="Models\**" />
+    <Compile Remove="SpotifySongsTracker.Dashboard\**" />
+    <EmbeddedResource Remove="SpotifySongsTracker.Dashboard\**" />
+    <None Remove="SpotifySongsTracker.Dashboard\**" />
+    <Content Remove="SpotifySongsTracker.Dashboard\**" />
   </ItemGroup>
 
   <ItemGroup>
