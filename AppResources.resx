@@ -124,12 +124,14 @@
     <value>1f91bb8030db4e769032b0416c7ca16f</value>
   </data>
   <data name="RedirectUri" xml:space="preserve">
-    <value>http://localhost:5000/callback</value>
+    <value>http://127.0.0.1:5000/callback</value>
+    <comment>before: localhost</comment>
   </data>
   <data name="Port" xml:space="preserve">
     <value>5000</value>
   </data>
   <data name="oldRedirectUri" xml:space="preserve">
-    <value>http://localhost:5543</value>
+    <value>http://127.0.0.1:5543</value>
+    <comment>before: localhost</comment>
   </data>
 </root>
